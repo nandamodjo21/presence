@@ -46,12 +46,11 @@ app.get('/uploads/:filename', (c: Context) => {
             contentType = 'image/gif';
         }
 
-        // Mengirim file dengan header yang sesuai
         return c.body(file, {
             headers: { 'Content-Type': contentType },
         });
     } else {
-        return c.text('File not found', 404); // Jika file tidak ditemukan
+        return c.text('File not found', 404);
     }
 });
 
