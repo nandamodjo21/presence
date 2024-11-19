@@ -2,15 +2,18 @@
   "name": "my-hono",
   "scripts": {
     "dev": "tsx watch main.ts",
-    "build": "tsc && cp .env build\\. && cp package.json build\\. && cp package-lock.json build\\. && cp -r assets build\\."
+    "build": "tsc && cp .env build\\. && cp package.json build\\. && cp presence.sql build\\. && cp -r bugs build\\."
   },
   "dependencies": {
     "@hono/node-server": "^1.13.5",
     "@langchain/google-genai": "^0.1.3",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
+    "face-api.js": "^0.20.0",
     "formidable": "^3.5.2",
     "hono": "^4.6.9",
+    "jimp": "^1.6.0",
+    "mysql-queues": "^1.0.0",
     "mysql2": "^3.11.4",
     "pino": "^9.5.0",
     "qrcode-terminal": "^0.12.0",
@@ -21,6 +24,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/formidable": "^3.4.5",
+    "@types/jimp": "^0.2.1",
     "@types/node": "^20.11.17",
     "@types/uuid": "^10.0.0",
     "tsx": "^4.7.1"

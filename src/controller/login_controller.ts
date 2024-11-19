@@ -1,11 +1,11 @@
 import type {Context} from "hono";
-import pool from "../config/db.js";
 import {toLoginResponse} from "../model/login_model.js";
 import {verifyPassword} from "../helper/auth_helper.js";
+import {connection} from "../utils/use-variable";
 
 async function LoginController(c:Context) {
     const { username, password } = await c.req.json();
-    const [rows] = await pool.query(`SELECT * FROM t_users WHERE username = "${username}"`);
+    const [rows] = await connection.query("SELECT * FROM t_users WHERE username = ?",[username]);
     const  result = rows as any[];
     if (result.length >0){
         const user = result[0];
@@ -13,7 +13,7 @@ async function LoginController(c:Context) {
         const isActive = user.status;
         if (isPasswordValid){
             if (isActive === 'on'){
-                return c.json({status:true,message:'data found',data:toLoginResponse(user)})
+                return c.json({status:true,message:'data found',data:result.map(toLoginResponse)})
             }else{
                 return c.json({status:false,message:'Please contact customer service to Activate your account'},401)
             }

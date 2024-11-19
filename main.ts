@@ -8,6 +8,8 @@ import {absenKeluarController, absenMasukController} from "./src/controller/abse
 import path from "path";
 import fs from "fs";
 import dotEnv from "dotenv";
+import {LocationController} from "./src/controller/location_controller";
+import {connection} from "./src/utils/use-variable";
 
 dotEnv.config();
 const app = new Hono()
@@ -23,10 +25,12 @@ app.get('/getBiodata',getBiodataController)
 app.post('/addBiodata',addBiodataController)
 app.get('/getPekerjaan',getPekerjaan)
 app.post('/addPekerjaan',addPekerjaan)
-app.post('/absenMasukController',absenMasukController)
-app.post('/absenKeluarController',absenKeluarController)
-
-
+app.post('/absenMasuk',absenMasukController)
+app.post('/absenKeluar',absenKeluarController)
+app.post('/location',LocationController)
+app.get('/halo',(c)=>{
+   return  c.text('halo')
+});
 
 
 app.get('/uploads/:filename', (c: Context) => {
@@ -54,10 +58,15 @@ app.get('/uploads/:filename', (c: Context) => {
     }
 });
 
-const port = 3000
-console.log(`Server is running on http://localhost:${port}`)
+
+const port = 3000;
+const url = process.env.BASE_URL;
+console.log(`Server is running on ${url}:${port}`)
 
 serve({
     fetch: app.fetch,
     port
 })
+// function generateRandomFourDigits(): number {
+//     return Math.floor(1000 + Math.random() * 9000);
+// }

@@ -8,8 +8,7 @@ export async function getPekerjaan(c:Context){
     const [rows] = await pool.query(`SELECT * FROM t_pekerjaan WHERE kd_biodata = ?`, [kd_biodata.kd_biodata]);
     const result = rows as any[];
     if (result.length > 0){
-        const data = result[0];
-        return c.json({status:true,message:'data found',data:toPekerjaanResponse(data)},200)
+        return c.json({status:true,message:'data found',data:result.map(toPekerjaanResponse)},200)
     }
     return c.json({status:false,message:'data not found'},404);
 }
