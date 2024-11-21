@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from "fs";
 import path from "path";
 import {calculateDistance} from "../helper/location_helper";
+import {connection} from "../utils/use-variable";
 
 const radius = 20;
 export async function absenMasukController(c:Context){
@@ -14,8 +15,13 @@ export async function absenMasukController(c:Context){
         const jenis_absen = body['jenis_absen'];
         const latitude = body['latitude'];
         const longitude = body['longitude'];
-        const foto = body['foto'] as File;
-
+        const foto = body['foto'];
+        if (
+            !foto ||
+            !(foto instanceof File)
+        ) {
+            return c.json({ status: false, message: 'File foto_wajah tidak valid atau tidak ada' }, 400);
+        }
         const [location] = await pool.query(`SELECT * FROM t_location`);
         const resultLocation = location as any[];
         console.log(resultLocation);
@@ -119,6 +125,7 @@ export async function absenKeluarController(c:Context) {
     }
     return c.json({status:false,message:'anda belum absen masuk'},400)
 }
+
 
 
 
