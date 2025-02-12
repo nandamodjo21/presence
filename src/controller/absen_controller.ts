@@ -5,8 +5,11 @@ import fs from "fs";
 import path from "path";
 import {calculateDistance} from "../helper/location_helper";
 import {connection} from "../utils/use-variable";
+import {compareFaces} from "../helper/face_api";
 
 const radius = 20;
+
+
 export async function absenMasukController(c:Context){
 
     try {
@@ -16,13 +19,14 @@ export async function absenMasukController(c:Context){
         const latitude = body['latitude'];
         const longitude = body['longitude'];
         const foto = body['foto'];
+        const client = body['client'];
         if (
             !foto ||
             !(foto instanceof File)
         ) {
             return c.json({ status: false, message: 'File foto_wajah tidak valid atau tidak ada' }, 400);
         }
-        const [location] = await pool.query(`SELECT * FROM t_location`);
+        const [location] = await pool.query(`SELECT * FROM t_location WHERE kd_client = ?;`,[client]);
         const resultLocation = location as any[];
         console.log(resultLocation);
         if (resultLocation.length ===0){
@@ -55,6 +59,24 @@ export async function absenMasukController(c:Context){
 
         fs.writeFileSync(photoFilePath, photoData);
 
+        const [user] = await pool.query("SELECT foto_wajah FROM t_biodata WHERE kd_biodata = ?", [kd_user]);
+        const userData = user as any[];
+        if (userData.length === 0) {
+            return c.json({ status: false, message: 'User tidak ditemukan' }, 404);
+        }
+
+        const imageNamesIdentity = userData[0].foto_wajah;
+        const identitasFilePath = path.resolve(__dirname, "../..", "uploads", userData[0].foto_wajah);
+        if (!fs.existsSync(identitasFilePath)) {
+            return c.json({ status: false, message: 'File identitas tidak ditemukan di server' }, 404);
+        }
+        // // Bandingkan wajah menggunakan fungsi compareFaces
+        const isMatch = await compareFaces(identitasFilePath, foto,imageNamesIdentity);
+        console.log(isMatch);
+        if (!isMatch) {
+            return c.json({ status: false, message: 'Wajah tidak cocok dengan identitas' }, 400);
+        }
+
         const query = `INSERT INTO t_absensi(kd_absensi,kd_user,jenis_absen,foto,latitude,longitude) VALUES(?,?,?,?,?,?)`;
         await pool.query(query, [
             uuidv4(),
@@ -80,9 +102,10 @@ export async function absenKeluarController(c:Context) {
     const jenis_absen = body['jenis_absen'];
     const latitude = body['latitude'];
     const longitude = body['longitude'];
+    const client = body['client'];
     const foto = body['foto'] as File;
 
-    const [location] = await pool.query(`SELECT * FROM t_location`);
+    const [location] = await pool.query(`SELECT * FROM t_location WHERE kd_client = ?;`,[client]);
     const resultLocation = location as any[];
     if (resultLocation.length===0){
         return c.json({status:false,message:'location not found'},404)
@@ -110,6 +133,23 @@ export async function absenKeluarController(c:Context) {
             const photoFilePath = path.join(uploadImage, photoFileName);
             const photoData = Buffer.from(await foto.arrayBuffer());
 
+            const [Users] = await pool.query("SELECT foto_wajah FROM t_biodata WHERE kd_biodata = ?", [kd_user]);
+            const userdata = Users as any[];
+            if (userdata.length === 0) {
+                return c.json({ status: false, message: 'User tidak ditemukan' }, 404);
+            }
+
+            const imageNamesIdentity = userdata[0].foto_wajah;
+            const identitasFilePath = path.resolve(__dirname, "../..", "uploads", userdata[0].foto_wajah);
+            if (!fs.existsSync(identitasFilePath)) {
+                return c.json({ status: false, message: 'File identitas tidak ditemukan di server' }, 404);
+            }
+            // // Bandingkan wajah menggunakan fungsi compareFaces
+            const isMatch = await compareFaces(identitasFilePath, foto,imageNamesIdentity);
+            console.log(isMatch);
+            if (!isMatch) {
+                return c.json({ status: false, message: 'Wajah tidak cocok dengan identitas' }, 400);
+            }
             fs.writeFileSync(photoFilePath, photoData);
             const query = `INSERT INTO t_absensi(kd_absensi,kd_user,jenis_absen,foto,latitude,longitude) VALUES(?,?,?,?,?,?)`;
             await pool.query(query, [

@@ -8,12 +8,21 @@ import {absenKeluarController, absenMasukController} from "./src/controller/abse
 import path from "path";
 import fs from "fs";
 import dotEnv from "dotenv";
-import {LocationController} from "./src/controller/location_controller";
+import {getLocationClient, LocationController} from "./src/controller/location_controller";
 import {connection} from "./src/utils/use-variable";
+import OpenAI from "openai";
+import {bot_controller} from "./src/controller/bot_controller";
+// import {loadModels} from "./src/helper/model_faces";
+import {ClientController, getClientController} from "./src/controller/client_controller";
+import {faces} from "./src/controller/face_controller";
 
 dotEnv.config();
 const app = new Hono()
-
+const apikey = "sk-3f272c164c49492c8ae4b35deef00fa9";
+const openai = new OpenAI({
+    baseURL : 'https://api.deepseek.com',
+    apiKey : apikey
+});
 
 app.get('/', (c) => {
     return c.json({data:'kontol'});
@@ -28,10 +37,18 @@ app.post('/addPekerjaan',addPekerjaan)
 app.post('/absenMasuk',absenMasukController)
 app.post('/absenKeluar',absenKeluarController)
 app.post('/location',LocationController)
+app.post('/botviews',bot_controller)
+app.post('/client',ClientController);
+app.get('/client',getClientController);
+app.post('/verfiy',faces);
+app.get('/location',getLocationClient);
 app.get('/halo',(c)=>{
-   return  c.text('halo')
+   return  c.text('halo');
 });
 
+
+// loadModels().then(() => {
+// });
 
 app.get('/uploads/:filename', (c: Context) => {
     const { filename } = c.req.param();
@@ -57,6 +74,7 @@ app.get('/uploads/:filename', (c: Context) => {
         return c.text('File not found', 404);
     }
 });
+
 
 
 const port = 3000;

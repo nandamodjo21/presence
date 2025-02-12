@@ -1,19 +1,36 @@
 
 
 export type LoginResponse = {
-    kd_user: string;
-    username:string;
-    is_active:string;
+    id_karyawan:string;
+    kd_biodata:string;
+    kd_client:string;
+    nama_lengkap:string;
     role:string;
-    createdAt:Date;
+    status:string;
+}
+export type UserLoginResponse = {
+    kd_user:string;
+    username:string;
+    role:string;
+    status:string;
 }
 
-export  function toLoginResponse(user: any): LoginResponse {
+export  function toLoginResponse(user: LoginResponse) {
     return {
-        kd_user:user.kd_user,
-        username:user.username,
-        is_active:user.status,
+        kd_user:user.kd_biodata,
+        kd_karyawan:user.id_karyawan,
+        kd_client:user.kd_client,
+        name:user.nama_lengkap,
         role:user.role,
-        createdAt:user.created_at
+        is_active:user.status,
+    }
+}
+
+export function toUserLogin(data: UserLoginResponse) {
+    return {
+        kd_user:data.kd_user,
+        username:data.username,
+        role:data.role,
+        status:data.status,
     }
 }

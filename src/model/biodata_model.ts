@@ -1,6 +1,7 @@
 
 
 export type BiodataResponse = {
+    kd_biodata:string;
     nama_lengkap:string;
     email:string;
     nomor_ponsel:string;
@@ -15,6 +16,7 @@ export type BiodataResponse = {
 
 export function toBiodataResponse(data:any):BiodataResponse {
    return {
+       kd_biodata:data.kd_biodata,
        nama_lengkap:data.nama_lengkap,
        email:data.email,
        nomor_ponsel:data.nomor_ponsel,

@@ -8,6 +8,15 @@ import path from "path";
 
 export async function getBiodataController(c:Context) {
     const params = c.req.query();
+    if (params.kd_biodata == "0"){
+        const [rows] = await pool.query(`SELECT * FROM t_biodata`);
+        const  result = rows as any[];
+        if (result.length > 0){
+            return c.json({status:true,message:'data found',data:result.map(toBiodataResponse)})
+        }else{
+            return c.json({status:false,message:'data not found'},404);
+        }
+    }
     const [rows] = await pool.query(`SELECT * FROM t_biodata WHERE kd_biodata = ?`,[params.kd_biodata]);
     const  result = rows as any[];
     if (result.length >0){
